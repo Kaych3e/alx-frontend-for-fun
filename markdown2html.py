@@ -17,45 +17,39 @@ import pathlib
 import re
 
 
-def convert_md_to_html(input_file, output_file):
-    """
-    Converts markdown file to HTML file
-    """
-    # Read the Markdown content from the file
-    with open(input_file, encoding='utf-8') as f:
-        md_content = f.readlines()
-
-    html_content = []
-    for line in md_content:
-        # Check if the line is a heading
-        match = re.match(r'(#){1,6} (.*)', line)
-        if match:
-            # Get the level of the heading
-            h_level = len(match.group(1))
-            # Get the content of the heading
-            h_content = match.group(2)
-            # Append the HTML equivalent of the heading
-            html_content.append(f'<h{h_level}>{h_content}</h{h_level}>\n')
-        else:
-            html_content.append(line)
-
-    # Write the HTML content to the output file
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.writelines(html_content)
-
-
 if __name__ == '__main__':
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='Convert markdown to HTML')
-    parser.add_argument('input_file', help='path to input markdown file')
-    parser.add_argument('output_file', help='path to output HTML file')
-    args = parser.parse_args()
 
-    # Check if Markdown file exists
-    input_path = pathlib.Path(args.input_file)
-    if not input_path.is_file():
-        print(f'Missing {input_path}', file=sys.stderr)
+    # Check the number of command-line arguments
+    if len(sys.argv[1:]) != 2:
+        print('Usage: ./markdown2html.py README.md README.html',
+              file=sys.stderr)
         sys.exit(1)
 
-    # Convert Markdown to HTML
-    convert_md_to_html(args.input_file, args.output_file)
+    # Extract arguments and store in variables
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+
+    # Check if the Markdown file exists
+    if not (os.path.exists(input_file) and os.path.isfile(input_file)):
+        print(f'Missing {input_file}', file=sys.stderr)
+        sys.exit(1)
+
+    # Read the Markdown content from the file
+    with open(input_file, encoding='utf-8') as f:
+        html_content = []
+        md_content = [line[:-1] for line in f.readlines()]
+        for line in md_content:
+            heading = re.split(r'#{1,6} ', line)
+            if len(heading) > 1:
+                # Get the level of the heading
+                h_level = len(line[:line.find(heading[1])-1])
+                # Append the html equivalent of the heading
+                html_content.append(
+                    f'<h{h_level}>{heading[1]}</h{h_level}>\n'
+                )
+            else:
+                html_content.append(line)
+
+    # Write the HTML content to the output file
+    with open(output_file, 'w', encoding='utf-8') as f_2:
+        f_2.writelines(html_content)
