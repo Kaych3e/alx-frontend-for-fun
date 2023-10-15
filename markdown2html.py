@@ -13,26 +13,50 @@ Example:
 import sys
 import os
 import markdown
+import argparse
+import pathlib
+import re
 
 
-"""Number of command-line args"""
-if len(sys.argv) < 3:
-    sys.stderr.write("Usage: ./markdown2html.py README.md README.html\n")
-    sys.exit(1)
+def convert_md_to_html(input_file, output_file):
+    """
+    Converts markdown file to HTML file
+    """
+    # Read the Markdown content from the file
+    with open(input_file, encoding='utf-8') as f:
+        md_content = f.readlines()
 
-"""Extracting the args"""
-markdown_file = sys.argv[1]
-html_file = sys.argv[2]
+    html_content = []
+    for line in md_content:
+        # Check if the line is a heading
+        match = re.match(r'(#){1,6} (.*)', line)
+        if match:
+            # Get the level of the heading
+            h_level = len(match.group(1))
+            # Get the content of the heading
+            h_content = match.group(2)
+            # Append the HTML equivalent of the heading
+            html_content.append(f'<h{h_level}>{h_content}</h{h_level}>\n')
+        else:
+            html_content.append(line)
 
-if not path.exists(sys.argv[1]) or not str(sys.argv[1]).endswith(".md"):
-    sys.stderr.write("Missing " + sys.argv[1] + '\n')
-    sys.exit(1)
+    # Write the HTML content to the output file
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.writelines(html_content)
 
-with open(markdown_file, 'r') as markdown_input:
-    markdown_content = markdown_input.read()
 
-html_content = markdown.markdown(markdown_content)
-with open(html_file, 'w') as html_output:
-    html_output.write(html_content)
+if __name__ == '__main__':
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Convert markdown to HTML')
+    parser.add_argument('input_file', help='path to input markdown file')
+    parser.add_argument('output_file', help='path to output HTML file')
+    args = parser.parse_args()
 
-sys.exit(0)
+    # Check if Markdown file exists
+    input_path = pathlib.Path(args.input_file)
+    if not input_path.is_file():
+        print(f'Missing {input_path}', file=sys.stderr)
+        sys.exit(1)
+
+    # Convert Markdown to HTML
+    convert_md_to_html(args.input_file, args.output_file)
