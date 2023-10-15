@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" 
+"""
 Script to convert Markdown file to HTML
 
 Arguments:
@@ -12,7 +12,6 @@ Example:
 
 import sys
 import os
-import markdown
 import argparse
 import pathlib
 import re
