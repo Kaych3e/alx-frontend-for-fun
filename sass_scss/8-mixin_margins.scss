@@ -1,0 +1,14 @@
+/* assigns margins and use a mixin */
+
+@mixin LR-margin($value) {
+  margin-left: $value;
+  margin-right: $value;
+}
+
+body {
+  @include LR-margin(10px);
+}
+
+div {
+  @include LR-margin(15px);
+}
