@@ -1,7 +1,8 @@
-/* changes color when using hover button */
+/* changes color when using nested hover button */
 
 button {
   color: #FF0000;
+
   &:hover {
     color: #00FF00;
   }
